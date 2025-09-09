@@ -1,6 +1,5 @@
-// Конфігурація Telegram бота - ЗАМІНІТЬ НА СВОЇ ДАНІ
-const TELEGRAM_BOT_TOKEN = 'YOUR_BOT_TOKEN'; // Токен вашого бота
-const TELEGRAM_CHAT_ID = 'YOUR_CHAT_ID'; // Ваш chat ID
+const TELEGRAM_BOT_TOKEN = '8472754597:AAHCkQVxbosnVu6RM0U4HyL63DWlurjEziY';
+const TELEGRAM_CHAT_ID = '8472754597';
 
 // Мовні переклади
 const translations = {
