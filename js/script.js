@@ -1,5 +1,5 @@
 const TELEGRAM_BOT_TOKEN = '8472754597:AAHCkQVxbosnVu6RM0U4HyL63DWlurjEziY';
-const TELEGRAM_CHAT_ID = '8472754597';
+const TELEGRAM_CHAT_ID = '-4879308527';
 
 // Мовні переклади
 const translations = {
