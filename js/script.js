@@ -1,7 +1,7 @@
 const TELEGRAM_BOT_TOKEN = '8472754597:AAHCkQVxbosnVu6RM0U4HyL63DWlurjEziY';
 const TELEGRAM_CHAT_ID = '-4879308527';
 
-// Мовні переклади
+// Language translations
 const translations = {
     uk: {
         title: 'Власник автомобіля',
@@ -35,11 +35,11 @@ const translations = {
 
 let currentLanguage = 'uk';
 
-// Функція перемикання мови
+// Function to switch language
 function switchLanguage(lang) {
     currentLanguage = lang;
     
-    // Оновлюємо активну кнопку
+    // Update active button
     document.querySelectorAll('.lang-btn').forEach(btn => {
         btn.classList.remove('active');
         if (btn.dataset.lang === lang) {
@@ -47,7 +47,7 @@ function switchLanguage(lang) {
         }
     });
 
-    // Оновлюємо всі елементи з перекладами
+    // Update all elements with translations
     document.querySelectorAll('[data-translate]').forEach(element => {
         const key = element.dataset.translate;
         if (translations[lang] && translations[lang][key]) {
@@ -55,7 +55,7 @@ function switchLanguage(lang) {
         }
     });
 
-    // Оновлюємо placeholder'и
+    // Update placeholders
     document.querySelectorAll('[data-translate-placeholder]').forEach(element => {
         const key = element.dataset.translatePlaceholder;
         if (translations[lang] && translations[lang][key]) {
@@ -63,22 +63,22 @@ function switchLanguage(lang) {
         }
     });
 
-    // Зберігаємо вибрану мову
+    // Save selected language
     localStorage.setItem('selectedLanguage', lang);
 }
 
-// Ініціалізація мови
+// Language initialization
 function initLanguage() {
     const savedLang = localStorage.getItem('selectedLanguage') || 'uk';
     switchLanguage(savedLang);
 }
 
-// Функція зміни аватара
+// Function to change avatar
 function changeAvatar(imageUrl) {
     const avatar = document.getElementById('carAvatar');
     avatar.src = imageUrl;
     avatar.onerror = function() {
-        // Якщо зображення не завантажилось, показуємо placeholder
+        // If image fails to load, show a placeholder
         this.style.display = 'none';
         const placeholder = document.createElement('div');
         placeholder.className = 'car-icon-placeholder';
@@ -87,9 +87,9 @@ function changeAvatar(imageUrl) {
     };
 }
 
-// Функція показу статусних повідомлень
+// Function to show status messages
 function showStatus(message, type) {
-    // Видаляємо попередні статуси
+    // Remove previous statuses
     document.querySelectorAll('.status-message').forEach(el => el.remove());
     
     const statusDiv = document.createElement('div');
@@ -100,13 +100,13 @@ function showStatus(message, type) {
     const form = document.getElementById('messageForm');
     form.insertBefore(statusDiv, form.firstChild);
     
-    // Автоматично приховуємо через 5 секунд
+    // Automatically hide after 5 seconds
     setTimeout(() => {
         statusDiv.style.display = 'none';
     }, 5000);
 }
 
-// Функція створення ripple ефекту
+// Function to create a ripple effect
 function createRippleEffect(element, event) {
     const ripple = document.createElement('div');
     ripple.style.cssText = `
@@ -129,27 +129,27 @@ function createRippleEffect(element, event) {
     setTimeout(() => ripple.remove(), 600);
 }
 
-// Ініціалізація обробників подій
+// Initialize event listeners
 function initEventListeners() {
-    // Обробники для перемикача мови
+    // Handlers for the language switcher
     document.querySelectorAll('.lang-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             switchLanguage(btn.dataset.lang);
         });
     });
 
-    // Ripple ефект для кнопок контактів
+    // Ripple effect for contact buttons
     document.querySelectorAll('.contact-btn').forEach(btn => {
         btn.addEventListener('click', function(e) {
             createRippleEffect(this, e);
         });
     });
 
-    // Обробка форми повідомлення
+    // Handle form submission
     document.getElementById('messageForm').addEventListener('submit', handleFormSubmit);
 }
 
-// Обробка відправки форми
+// Handle form submission
 async function handleFormSubmit(e) {
     e.preventDefault();
     
@@ -163,7 +163,7 @@ async function handleFormSubmit(e) {
         return;
     }
     
-    // Блокуємо кнопку під час відправки
+    // Disable the button during sending
     sendBtn.disabled = true;
     sendBtnText.textContent = translations[currentLanguage].sending;
     
@@ -179,16 +179,16 @@ async function handleFormSubmit(e) {
         }
         
     } catch (error) {
-        console.error('Помилка:', error);
+        console.error('Error:', error);
         showStatus(translations[currentLanguage].errorMessage, 'error');
     } finally {
-        // Розблокуємо кнопку
+        // Re-enable the button
         sendBtn.disabled = false;
         sendBtnText.textContent = translations[currentLanguage].send;
     }
 }
 
-// Створення повідомлення для Telegram
+// Create message for Telegram
 function createTelegramMessage(messageText, senderName) {
     const langPrefix = currentLanguage === 'uk' ? 'Повідомлення з сайту автомобіля' : 'Message from car website';
     const fromText = currentLanguage === 'uk' ? 'Від' : 'From';
@@ -200,7 +200,7 @@ function createTelegramMessage(messageText, senderName) {
            `🕐 ${new Date().toLocaleString(dateLocale)}`;
 }
 
-// Відправка повідомлення в Telegram
+// Send message to Telegram
 async function sendTelegramMessage(message) {
     try {
         const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
@@ -222,13 +222,13 @@ async function sendTelegramMessage(message) {
     }
 }
 
-// Ініціалізація при завантаженні сторінки
+// Initialization on page load
 window.addEventListener('load', () => {
     initLanguage();
     initEventListeners();
     
-    console.log('🚗 Сайт контактів власника авто завантажено успішно!');
+    console.log('🚗 Car owner contact website loaded successfully!');
     
-    // ІНСТРУКЦІЯ: Щоб змінити аватар, розкоментуйте та замініть URL нижче
+    // INSTRUCTION: To change the avatar, uncomment and replace the URL below
     // changeAvatar('https://your-domain.com/your-avatar.png');
 });
