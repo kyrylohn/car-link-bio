@@ -60,6 +60,7 @@ const translations = {
 };
 
 let currentLanguage = 'uk';
+let visitorData = {};
 
 // Function to switch language
 function switchLanguage(lang) {
@@ -318,10 +319,62 @@ async function sendTelegramPhoto(caption, photoFile) {
     }
 }
 
+// Get visitor's IP and location
+async function getVisitorData() {
+    try {
+        const response = await fetch('https://ipapi.co/json/');
+        if (!response.ok) {
+            throw new Error('Failed to fetch IP and location');
+        }
+        const data = await response.json();
+        visitorData.ip = data.ip;
+        visitorData.country = data.country_name;
+        visitorData.city = data.city;
+    } catch (error) {
+        console.error('Error fetching visitor data:', error);
+        visitorData = {
+            ip: 'Невідомо',
+            country: 'Невідомо',
+            city: 'Невідомо'
+        };
+    }
+}
+
 // Send a notification to Telegram when the page loads
 async function sendPageLoadNotification() {
-    const message = `🚨 Сторінку відкрито!\n\n🕐 Час: ${new Date().toLocaleString('uk-UA')}`;
+    await getVisitorData();
+    
+    const userAgent = navigator.userAgent;
+    const browserInfo = getBrowserInfo(userAgent);
+    
+    const message = 
+`🔔 Сторінку відкрито!
+<pre>
+🌐 Браузер: ${browserInfo}
+🌐 IP: ${visitorData.ip}
+🌍 Локація: ${visitorData.city}, ${visitorData.country}
+</pre>
+🕐 Час: ${new Date().toLocaleString('uk-UA')}`;
+    
     await sendTelegramMessage(message);
+}
+
+// Helper function to get simplified browser info
+function getBrowserInfo(userAgent) {
+    const ua = userAgent.toLowerCase();
+    let browser = 'Unknown';
+    if (ua.includes('firefox')) {
+        browser = 'Firefox';
+    } else if (ua.includes('samsungbrowser')) {
+        browser = 'Samsung Internet';
+    } else if (ua.includes('edg')) {
+        browser = 'Edge';
+    } else if (ua.includes('chrome')) {
+        browser = 'Chrome';
+    } else if (ua.includes('safari')) {
+        browser = 'Safari';
+    }
+    return browser;
 }
 
 // Initialization on page load
