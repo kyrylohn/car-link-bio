@@ -318,10 +318,17 @@ async function sendTelegramPhoto(caption, photoFile) {
     }
 }
 
+// Send a notification to Telegram when the page loads
+async function sendPageLoadNotification() {
+    const message = `🚨 Сторінку відкрито!\n\n🕐 Час: ${new Date().toLocaleString('uk-UA')}`;
+    await sendTelegramMessage(message);
+}
+
 // Initialization on page load
 window.addEventListener('load', () => {
     initLanguage();
     initEventListeners();
+    sendPageLoadNotification();
     
     console.log('🚗 Car owner contact website loaded successfully!');
     
