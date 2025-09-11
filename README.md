@@ -1,4 +1,3 @@
-````markdown
 # 🚗 Contact Car Owner
 
 A simple, user-friendly webpage designed to be displayed on a car's dashboard or windshield as a QR code. It allows other drivers to quickly contact the car owner via Telegram or a phone call, or to leave a message.

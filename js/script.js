@@ -7,6 +7,18 @@ const translations = {
         title: 'Власник автомобіля',
         subtitle: 'Якщо моє авто заважає, будь ласка, зв\'яжіться зі мною. Я швидко переставлю машину!',
         phone: 'Подзвонити',
+        notification: 'Відправити сповіщення',
+        notificationTitle: 'Оберіть сповіщення',
+        choosePhoto: 'Обрати фото',
+        photoUploadTitle: 'Прикріпити фото (необов\'язково)',
+        blocked: 'Заважає проїзду',
+        accident: 'ДТП',
+        alarm: 'Звучить сигналізація',
+        light: 'Горить світло',
+        window: 'Відкрите вікно',
+        evacuation: 'Евакуація',
+        flatTire: 'Спущене колесо',
+        other: 'Інше',
         messageTitle: 'Залишити повідомлення',
         messagePlaceholder: 'Напишіть ваше повідомлення...',
         namePlaceholder: 'Ваше ім\'я (необов\'язково)',
@@ -15,12 +27,25 @@ const translations = {
         sending: 'Відправляємо...',
         successMessage: 'Повідомлення відправлено успішно! 🎉',
         errorMessage: 'Помилка відправки. Спробуйте пізніше або зателефонуйте',
-        emptyMessage: 'Будь ласка, введіть повідомлення'
+        emptyMessage: 'Будь ласка, введіть повідомлення',
+        sendingNotification: 'Відправка сповіщення...'
     },
     en: {
         title: 'Car Owner',
         subtitle: 'If my car is blocking you, please contact me. I\'ll move it quickly!',
         phone: 'Call',
+        notification: 'Send notification',
+        notificationTitle: 'Select notification',
+        choosePhoto: 'Choose photo',
+        photoUploadTitle: 'Attach photo (optional)',
+        blocked: 'Blocking the way',
+        accident: 'Accident',
+        alarm: 'Alarm is sounding',
+        light: 'Lights are on',
+        window: 'Window is open',
+        evacuation: 'Evacuation',
+        flatTire: 'Flat tire',
+        other: 'Other',
         messageTitle: 'Leave a Message',
         messagePlaceholder: 'Write your message...',
         namePlaceholder: 'Your name (optional)',
@@ -29,7 +54,8 @@ const translations = {
         sending: 'Sending...',
         successMessage: 'Message sent successfully! 🎉',
         errorMessage: 'Sending error. Please try later or call',
-        emptyMessage: 'Please enter a message'
+        emptyMessage: 'Please enter a message',
+        sendingNotification: 'Sending notification...'
     }
 };
 
@@ -147,6 +173,50 @@ function initEventListeners() {
 
     // Handle form submission
     document.getElementById('messageForm').addEventListener('submit', handleFormSubmit);
+
+    // --- New code for notifications ---
+    const modal = document.getElementById('notificationModal');
+    const openBtn = document.getElementById('openNotificationModal');
+    const closeBtn = document.querySelector('.modal .close-btn');
+
+    openBtn.addEventListener('click', () => {
+        modal.style.display = 'flex';
+    });
+
+    closeBtn.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+
+    // Close modal when clicking outside of it
+    window.addEventListener('click', (event) => {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+
+    // Handle option selection and submission
+    document.querySelectorAll('.option-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            // Remove 'selected' from all buttons and add to the clicked one
+            document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+            this.classList.add('selected');
+
+            const messageType = this.dataset.type;
+            const notificationMessage = translations[currentLanguage][messageType];
+            const photoFile = document.getElementById('photoInput').files[0];
+            
+            showStatus(translations[currentLanguage].sendingNotification, 'success');
+            
+            if (photoFile) {
+                await sendTelegramPhoto(notificationMessage, photoFile);
+            } else {
+                await sendTelegramMessage(`🚗 ${translations[currentLanguage].notification}:\n\n` + `❗️ ${notificationMessage}`);
+            }
+
+            modal.style.display = 'none';
+            document.getElementById('photoInput').value = ''; // Reset file input
+        });
+    });
 }
 
 // Handle form submission
@@ -218,6 +288,32 @@ async function sendTelegramMessage(message) {
         return response.ok;
     } catch (error) {
         console.error('Telegram API Error:', error);
+        return false;
+    }
+}
+
+// Function to send a photo with a caption to Telegram
+async function sendTelegramPhoto(caption, photoFile) {
+    const formData = new FormData();
+    formData.append('chat_id', TELEGRAM_CHAT_ID);
+    formData.append('caption', `🚗 ${translations[currentLanguage].notification}:\n\n` + `❗️ ${caption}`);
+    formData.append('photo', photoFile);
+
+    try {
+        const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`, {
+            method: 'POST',
+            body: formData
+        });
+
+        if (response.ok) {
+            showStatus(translations[currentLanguage].successMessage, 'success');
+        } else {
+            showStatus(translations[currentLanguage].errorMessage, 'error');
+        }
+        return response.ok;
+    } catch (error) {
+        console.error('Telegram API Error:', error);
+        showStatus(translations[currentLanguage].errorMessage, 'error');
         return false;
     }
 }

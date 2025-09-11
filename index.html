@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Зв'яжіться з власником авто</title>
     <link rel="stylesheet" href="./css/style.css">
-  <!-- FontAwesome Icons -->
   <script src="https://kit.fontawesome.com/a9e1192225.js" crossorigin="anonymous"></script>
 </head>
 <body>
@@ -34,6 +33,11 @@
                 <i class="fab fa-telegram-plane icon"></i>
                 Telegram
             </a>
+
+            <button class="contact-btn notification-btn" id="openNotificationModal">
+                <i class="fas fa-bell icon"></i>
+                <span data-translate="notification">Відправити сповіщення</span>
+            </button>
         </div>
         
         <div class="message-form">
@@ -57,6 +61,30 @@
                     <span data-translate="send">Відправити</span>
                 </button>
             </form>
+        </div>
+    </div>
+
+    <div id="notificationModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h3 data-translate="notificationTitle">Оберіть сповіщення</h3>
+            <div class="notification-options">
+                <button class="option-btn" data-type="blocked" data-translate="blocked">Заважає проїзду</button>
+                <button class="option-btn" data-type="accident" data-translate="accident">ДТП</button>
+                <button class="option-btn" data-type="alarm" data-translate="alarm">Звучить сигналізація</button>
+                <button class="option-btn" data-type="light" data-translate="light">Горить світло</button>
+                <button class="option-btn" data-type="window" data-translate="window">Відкрите вікно</button>
+                <button class="option-btn" data-type="evacuation" data-translate="evacuation">Евакуація</button>
+                <button class="option-btn" data-type="flatTire" data-translate="flatTire">Спущене колесо</button>
+                <button class="option-btn" data-type="other" data-translate="other">Інше</button>
+            </div>
+            <div class="modal-photo-upload">
+                <h4 data-translate="photoUploadTitle">Прикріпити фото (необов'язково)</h4>
+                <input type="file" id="photoInput" accept="image/*" class="photo-input">
+                <label for="photoInput" class="custom-file-upload">
+                    <i class="fas fa-camera"></i> <span data-translate="choosePhoto">Обрати фото</span>
+                </label>
+            </div>
         </div>
     </div>
 
