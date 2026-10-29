@@ -4,6 +4,8 @@
  * POST /report   multipart: issue, text, name, lang, lat, lon, acc, photo, website (honeypot)
  * POST /visit    { visit }                      -> { ok, ref }
  * POST /update   { ref, visit, activity }       edits the visit message (sendBeacon, text/plain)
+ * GET  /status?t=ticket                         owner's reply to a report (from KV)
+ * POST /tg                                      Telegram webhook for the reply buttons
  */
 
 const BOT_UA = /bot|crawl|spider|slurp|headless|preview|facebookexternalhit|embedly|curl|wget|python|go-http|java\/|monitor|lighthouse/i;
@@ -39,7 +41,7 @@ function corsHeaders(origin, env) {
   if (!allowed.includes(origin)) return null;
   return {
     'Access-Control-Allow-Origin': origin,
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Max-Age': '86400',
     Vary: 'Origin'
@@ -87,12 +89,65 @@ async function hmac(env, text) {
   return btoa(String.fromCharCode(...new Uint8Array(sig))).replace(/[+/=]/g, '').slice(0, 22);
 }
 
-const makeRef = async (env, id) => `${id}.${await hmac(env, String(id))}`;
+const makeRef = async (env, id, kind = 'v') => `${id}.${await hmac(env, `${kind}:${id}`)}`;
 
-async function readRef(env, ref) {
+async function readRef(env, ref, kind = 'v') {
   const [id, sig] = String(ref || '').split('.');
   if (!/^\d+$/.test(id || '') || !sig) return null;
-  return (await hmac(env, id)) === sig ? Number(id) : null;
+  return (await hmac(env, `${kind}:${id}`)) === sig ? Number(id) : null;
+}
+
+/* --- Owner replies ---------------------------------------------------------- */
+
+const REPLIES = {
+  m5: '🚶 Іду, 5 хв',
+  m15: '🚶 Іду, 15 хв',
+  cant: '🙅 Не можу підійти',
+  done: '✅ Вже переставив'
+};
+
+function replyKeyboard(chosen) {
+  const btn = (k) => ({ text: k === chosen ? `● ${REPLIES[k]}` : REPLIES[k], callback_data: k });
+  return { inline_keyboard: [[btn('m5'), btn('m15')], [btn('cant'), btn('done')]] };
+}
+
+// Telegram webhook: the owner pressed a reply button under a report
+async function handleTelegram(request, env) {
+  if (request.headers.get('X-Telegram-Bot-Api-Secret-Token') !== env.WEBHOOK_SECRET) {
+    return new Response('Forbidden', { status: 403 });
+  }
+  const update = await readJson(request);
+  const q = update && update.callback_query;
+  if (!q) return new Response('ok');
+
+  const answer = (text) => fetch(`https://api.telegram.org/bot${env.BOT_TOKEN}/answerCallbackQuery`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ callback_query_id: q.id, text })
+  });
+
+  const msg = q.message;
+  if (!msg || String(msg.chat.id) !== String(env.CHAT_ID) || !REPLIES[q.data]) {
+    await answer('');
+    return new Response('ok');
+  }
+
+  await env.STATUS.put(`r:${msg.message_id}`, JSON.stringify({ status: q.data, at: Date.now() }), {
+    expirationTtl: 86400
+  });
+  await telegram(env, 'editMessageReplyMarkup', { message_id: msg.message_id, reply_markup: replyKeyboard(q.data) });
+  await answer(`Показано на сторінці: ${REPLIES[q.data]}`);
+  return new Response('ok');
+}
+
+async function handleStatus(request, env, cors) {
+  const id = await readRef(env, new URL(request.url).searchParams.get('t'), 'r');
+  if (!id) return json({ ok: false, error: 'bad_ref' }, 400, cors);
+  const saved = await env.STATUS.get(`r:${id}`, 'json');
+  return json({ ok: true, status: saved ? saved.status : 'waiting', at: saved ? saved.at : null }, 200, {
+    ...cors,
+    'Cache-Control': 'no-store'
+  });
 }
 
 /* --- Visitor description ---------------------------------------------------- */
@@ -274,9 +329,10 @@ async function handleReport(request, env, cors) {
     fd.set('photo', photo, photo.name || 'photo.jpg');
     // Photo captions are capped at 1024 characters
     fd.set('caption', body.length > 1024 ? `${body.slice(0, 1000)}…` : body);
+    fd.set('reply_markup', JSON.stringify(replyKeyboard()));
     res = await telegram(env, 'sendPhoto', fd);
   } else {
-    res = await telegram(env, 'sendMessage', { text: body });
+    res = await telegram(env, 'sendMessage', { text: body, reply_markup: replyKeyboard() });
   }
   if (!res.ok) return json({ ok: false }, 502, cors);
 
@@ -288,7 +344,8 @@ async function handleReport(request, env, cors) {
       reply_to_message_id: res.result.message_id
     });
   }
-  return json({ ok: true }, 200, cors);
+  // The page polls /status with this ticket to show the owner's reply
+  return json({ ok: true, ticket: await makeRef(env, res.result.message_id, 'r') }, 200, cors);
 }
 
 async function handleVisit(request, env, cors) {
@@ -314,13 +371,16 @@ async function handleUpdate(request, env, cors) {
 
 export default {
   async fetch(request, env) {
+    const { pathname } = new URL(request.url);
+    if (pathname === '/tg' && request.method === 'POST') return handleTelegram(request, env);
+
     const cors = corsHeaders(request.headers.get('Origin') || '', env);
     if (!cors) return new Response('Forbidden', { status: 403 });
 
     if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
+    if (request.method === 'GET' && pathname === '/status') return handleStatus(request, env, cors);
     if (request.method !== 'POST') return json({ ok: false, error: 'method' }, 405, cors);
 
-    const { pathname } = new URL(request.url);
     if (pathname === '/report') return handleReport(request, env, cors);
     if (pathname === '/visit') return handleVisit(request, env, cors);
     if (pathname === '/update') return handleUpdate(request, env, cors);

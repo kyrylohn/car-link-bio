@@ -14,6 +14,7 @@
   --field: #f3f5f7;
   --marking: #f2c230;
   --marking-ink: #1b1f24;
+  --accent-text: #1d5ba8;
   --ok: #1f7a43;
   --err: #b3261e;
 
@@ -33,7 +34,12 @@
     --field: #1b2026;
     --ok: #6fd39a;
     --err: #ff9d95;
+    --accent-text: #8cb8f2;
     color-scheme: dark;
+  }
+
+  .sign__plate::after {
+    box-shadow: 0 0 8px rgb(255 255 255 / 0.55), inset 0 0 6px rgb(255 255 255 / 0.35);
   }
 }
 
@@ -60,6 +66,10 @@ body {
   max-width: 30rem;
   margin: 0 auto;
   padding: max(1rem, env(safe-area-inset-top)) 1rem max(2rem, env(safe-area-inset-bottom));
+}
+
+[hidden] {
+  display: none !important;
 }
 
 .sr-only {
@@ -112,14 +122,50 @@ body {
   padding: 7px;
 }
 
+.sign {
+  animation: sign-in 0.55s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+
+@keyframes sign-in {
+  from {
+    transform: translateY(-14px);
+    opacity: 0;
+  }
+}
+
+@property --sweep {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 360deg;
+}
+
 .sign__plate {
-  border: 3px solid var(--sign-ink);
+  position: relative;
   border-radius: 9px;
-  padding: 1.1rem 1.25rem 1.35rem;
+  padding: calc(1.1rem + 3px) calc(1.25rem + 3px) calc(1.35rem + 3px);
   display: grid;
   grid-template-columns: auto 1fr;
   column-gap: 1rem;
   align-items: center;
+}
+
+.sign__plate::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 3px solid var(--sign-ink);
+  border-radius: inherit;
+  pointer-events: none;
+  /* the white edge is drawn around the plate once, like retroreflective film */
+  -webkit-mask: conic-gradient(#000 var(--sweep), transparent 0);
+  mask: conic-gradient(#000 var(--sweep), transparent 0);
+  animation: sweep 0.8s 0.3s ease-out both;
+}
+
+@keyframes sweep {
+  from {
+    --sweep: 0deg;
+  }
 }
 
 .sign__p {
@@ -241,13 +287,14 @@ body {
   padding: 0.5rem 0.8rem;
   border: 2px solid var(--line);
   border-radius: 8px;
-  background: var(--field);
+  background: linear-gradient(var(--marking), var(--marking)) no-repeat left / 0% 100%, var(--field);
   font-weight: 500;
   line-height: 1.2;
+  transition: background-size 0.28s ease-out, border-color 0.2s, color 0.2s;
 }
 
 .issues input:checked + span {
-  background: var(--marking);
+  background-size: 100% 100%, auto;
   border-color: var(--marking);
   color: var(--marking-ink);
   font-weight: 600;
@@ -366,6 +413,222 @@ body {
   cursor: progress;
 }
 
+.details {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s ease;
+}
+
+.details.is-open {
+  grid-template-rows: 1fr;
+}
+
+.details__inner {
+  min-height: 0;
+  overflow: hidden;
+  display: grid;
+  gap: 1rem;
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+
+.details.is-open .details__inner {
+  opacity: 1;
+  padding-top: 0.25rem;
+}
+
+.btn--send {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn--send.is-busy::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 4px;
+  width: 40%;
+  background: var(--marking);
+  animation: busy 1s ease-in-out infinite alternate;
+}
+
+@keyframes busy {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(250%);
+  }
+}
+
+/* --- Result card ---------------------------------------------------------- */
+
+.result {
+  margin-top: 2.25rem;
+  padding: 1.5rem 1.25rem;
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  text-align: center;
+  animation: rise 0.4s ease-out both;
+}
+
+.result:focus {
+  outline: none;
+}
+
+@keyframes rise {
+  from {
+    transform: translateY(12px);
+    opacity: 0;
+  }
+}
+
+.result__mark {
+  width: 3.5rem;
+  height: 3.5rem;
+  fill: none;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.result__mark circle {
+  stroke: var(--line);
+}
+
+.result__mark path {
+  stroke: var(--ok);
+  stroke-dasharray: 40;
+  animation: draw 0.45s 0.2s ease-out both;
+}
+
+.result[data-status="cant"] .result__mark path {
+  stroke: var(--err);
+}
+
+.result[data-status="m5"] .result__mark circle,
+.result[data-status="m15"] .result__mark circle,
+.result[data-status="done"] .result__mark circle {
+  stroke: var(--ok);
+}
+
+@keyframes draw {
+  from {
+    stroke-dashoffset: 40;
+  }
+}
+
+.result__title {
+  font: 700 1.6rem/1.15 var(--display);
+  margin: 0.6rem 0 0.35rem;
+}
+
+.result__text {
+  margin: 0 auto;
+  max-width: 24rem;
+}
+
+.result__eta {
+  display: block;
+  font: 700 2.5rem/1.1 var(--display);
+  margin-top: 0.5rem;
+  color: var(--accent-text);
+}
+
+.result__wait {
+  display: flex;
+  justify-content: center;
+  gap: 0.4rem;
+  margin: 1rem 0 0;
+}
+
+.result__wait[hidden] {
+  display: none;
+}
+
+.result__wait span {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--sign);
+  animation: wait 1.2s ease-in-out infinite;
+}
+
+.result__wait span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.result__wait span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes wait {
+  0%,
+  80%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.8);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.result .btn--call {
+  margin-top: 1.25rem;
+}
+
+.result__again {
+  margin-top: 1.25rem;
+  font: 500 0.9375rem/1.4 var(--text);
+  color: var(--muted);
+  background: none;
+  border: 0;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+  padding: 0.5rem;
+}
+
+/* --- Call dock: appears once the main call button scrolls away ------------ */
+
+.page {
+  padding-bottom: calc(6rem + env(safe-area-inset-bottom));
+}
+
+.dock {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
+  background: color-mix(in srgb, var(--page) 88%, transparent);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border-top: 1px solid var(--line);
+  transform: translateY(110%);
+  transition: transform 0.3s ease;
+}
+
+.dock.is-shown {
+  transform: none;
+}
+
+.dock .btn {
+  max-width: 28rem;
+  margin: 0 auto;
+  min-height: 3.5rem;
+  font-size: 1.2rem;
+}
+
+/* Language switch cross-fades via the View Transitions API */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.2s;
+}
+
 @media (max-width: 22rem) {
   .issues,
   .extras {
@@ -374,6 +637,13 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
   .btn:active {
     transform: none;
   }

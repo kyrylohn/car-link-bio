@@ -44,7 +44,7 @@
     </header>
 
     <nav class="actions" aria-label="Contact">
-      <a class="btn btn--call" href="tel:+380672923375" data-action="call">
+      <a class="btn btn--call" id="main-call" href="tel:+380672923375" data-action="call">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1L6.6 10.8z"/></svg>
         <span><span data-l="uk">Подзвонити</span><span data-l="en">Call</span></span>
       </a>
@@ -54,14 +54,14 @@
       </a>
     </nav>
 
-    <section class="report" aria-labelledby="report-title">
+    <section class="report" id="report-section" aria-labelledby="report-title">
       <h2 id="report-title" class="report__title">
         <span data-l="uk">Або повідомте, що сталося</span>
         <span data-l="en">Or tell me what happened</span>
       </h2>
       <p class="report__hint">
-        <span data-l="uk">Повідомлення одразу прийде мені в Telegram. Ваш номер мені не потрібен.</span>
-        <span data-l="en">It goes straight to my Telegram. You don't need to share your number.</span>
+        <span data-l="uk">Повідомлення одразу прийде мені в Telegram, а моя відповідь з'явиться тут.</span>
+        <span data-l="en">It goes straight to my Telegram, and my reply will show up here.</span>
       </p>
 
       <form id="report" novalidate>
@@ -77,41 +77,68 @@
           <label><input type="radio" name="issue" value="other" /><span><span data-l="uk">Інше</span><span data-l="en">Something else</span></span></label>
         </fieldset>
 
-        <label class="field">
-          <span class="field__label"><span data-l="uk">Коментар</span><span data-l="en">Comment</span></span>
-          <textarea name="text" rows="3" maxlength="1000"></textarea>
-        </label>
+        <div class="details" id="details">
+          <div class="details__inner" id="details-inner" inert>
+            <label class="field">
+              <span class="field__label"><span data-l="uk">Коментар, якщо є що додати</span><span data-l="en">Comment, if there's more to say</span></span>
+              <textarea name="text" rows="3" maxlength="1000"></textarea>
+            </label>
 
-        <label class="field">
-          <span class="field__label"><span data-l="uk">Ваше ім'я, якщо хочете</span><span data-l="en">Your name, if you like</span></span>
-          <input name="name" type="text" maxlength="60" autocomplete="given-name" />
-        </label>
+            <label class="field">
+              <span class="field__label"><span data-l="uk">Ваше ім'я, якщо хочете</span><span data-l="en">Your name, if you like</span></span>
+              <input name="name" type="text" maxlength="60" autocomplete="given-name" />
+            </label>
 
-        <div class="extras">
-          <label class="extra">
-            <input type="file" name="photo" accept="image/*" id="photo" />
-            <span class="extra__box">
-              <span id="photo-label"><span data-l="uk">Додати фото</span><span data-l="en">Add a photo</span></span>
-            </span>
-          </label>
-          <label class="extra">
-            <input type="checkbox" id="geo" />
-            <span class="extra__box">
-              <span data-l="uk">Додати моє місцезнаходження</span><span data-l="en">Share my location</span>
-            </span>
-          </label>
+            <div class="extras">
+              <label class="extra">
+                <input type="file" name="photo" accept="image/*" capture="environment" id="photo" />
+                <span class="extra__box">
+                  <span id="photo-label"><span data-l="uk">Зробити фото</span><span data-l="en">Take a photo</span></span>
+                </span>
+              </label>
+              <label class="extra">
+                <input type="checkbox" id="geo" />
+                <span class="extra__box">
+                  <span data-l="uk">Додати моє місцезнаходження</span><span data-l="en">Share my location</span>
+                </span>
+              </label>
+            </div>
+
+            <input class="trap" name="website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true" />
+
+            <p class="status" id="status" role="status" aria-live="polite"></p>
+
+            <button type="submit" class="btn btn--send" id="send">
+              <span data-l="uk">Надіслати власнику</span><span data-l="en">Send to the owner</span>
+            </button>
+          </div>
         </div>
-
-        <input class="trap" name="website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true" />
-
-        <p class="status" id="status" role="status" aria-live="polite"></p>
-
-        <button type="submit" class="btn btn--send" id="send">
-          <span data-l="uk">Надіслати власнику</span><span data-l="en">Send to the owner</span>
-        </button>
       </form>
     </section>
+
+    <section class="result" id="result" hidden tabindex="-1" aria-live="polite">
+      <svg class="result__mark" viewBox="0 0 52 52" aria-hidden="true">
+        <circle cx="26" cy="26" r="24" />
+        <path id="result-path" d="M15 27l7 7 15-16" />
+      </svg>
+      <h2 class="result__title" id="result-title"></h2>
+      <p class="result__text" id="result-text"></p>
+      <p class="result__wait" id="result-wait"><span></span><span></span><span></span></p>
+      <a class="btn btn--call" href="tel:+380672923375" id="result-call" data-action="call" hidden>
+        <span data-l="uk">Подзвонити</span><span data-l="en">Call</span>
+      </a>
+      <button type="button" class="result__again" id="result-again">
+        <span data-l="uk">Надіслати ще одне повідомлення</span><span data-l="en">Send another message</span>
+      </button>
+    </section>
   </main>
+
+  <div class="dock" id="dock" aria-hidden="true">
+    <a class="btn btn--call" href="tel:+380672923375" data-action="call" tabindex="-1">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1L6.6 10.8z"/></svg>
+      <span><span data-l="uk">Подзвонити власнику</span><span data-l="en">Call the owner</span></span>
+    </a>
+  </div>
 
   <script src="./js/script.js"></script>
 </body>

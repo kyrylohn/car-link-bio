@@ -7,3 +7,10 @@ CHAT_ID = "-4879308527"
 ALLOWED_ORIGINS = "https://kyrylohn.github.io"
 
 # BOT_TOKEN is a secret: npx wrangler secret put BOT_TOKEN
+
+# Owner replies ("coming in 5 min") shown live on the page
+[[kv_namespaces]]
+binding = "STATUS"
+id = "b63fd440182943949d0ebd79d787c0c2"
+
+# WEBHOOK_SECRET is a secret too: Telegram sends it with every webhook call
