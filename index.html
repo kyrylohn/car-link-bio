@@ -1,93 +1,118 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Зв'яжіться з власником авто</title>
-    <link rel="stylesheet" href="./css/style.css">
-  <script src="https://kit.fontawesome.com/a9e1192225.js" crossorigin="anonymous"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Власник авто: зв'язатися</title>
+  <meta name="description" content="Моє авто заважає? Подзвоніть або напишіть, і я переставлю машину." />
+  <meta name="robots" content="noindex" />
+  <meta name="theme-color" content="#1d5ba8" />
+
+  <script>
+    (function () {
+      var saved = localStorage.getItem('car-lang');
+      var lang = saved || ((navigator.language || '').toLowerCase().startsWith('uk') ||
+        (navigator.language || '').toLowerCase().startsWith('ru') ? 'uk' : 'en');
+      document.documentElement.lang = lang;
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Sans+Condensed:wght@600;700&family=Fira+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./css/style.css" />
 </head>
 <body>
-    <div class="language-switcher">
-        <button class="lang-btn active" data-lang="uk">🇺🇦</button>
-        <button class="lang-btn" data-lang="en">🇺🇸</button>
+  <main class="page">
+    <div class="lang" role="group" aria-label="Мова / Language">
+      <button type="button" data-set-lang="uk" aria-pressed="false">UA</button>
+      <button type="button" data-set-lang="en" aria-pressed="false">EN</button>
     </div>
 
-    <div class="container">
-        <div class="car-icon" id="carIcon">
-            <img src="./img/IMG_20250909.jpg" alt="Car Avatar" id="carAvatar">
-        </div>
-        <h1 data-translate="title">Власник автомобіля</h1>
-        <p class="subtitle">
-            <span class="status-indicator"></span>
-            <span data-translate="subtitle">Якщо моє авто заважає, будь ласка, зв'яжіться зі мною. Я швидко переставлю машину!</span>
+    <header class="sign">
+      <div class="sign__plate">
+        <span class="sign__p" aria-hidden="true">P</span>
+        <h1 class="sign__title">
+          <span data-l="uk">Моє авто заважає?</span>
+          <span data-l="en">Is my car in your way?</span>
+        </h1>
+        <p class="sign__text">
+          <span data-l="uk">Подзвоніть або напишіть, і я швидко переставлю машину.</span>
+          <span data-l="en">Call or message me and I'll move it quickly.</span>
         </p>
-        
-        <div class="contact-buttons">
-            <a href="tel:+380672923375" class="contact-btn phone-btn">
-                <i class="fas fa-phone icon"></i>
-                <span data-translate="phone">Подзвонити</span>
-            </a>
-            
-            <a href="https://t.me/kyrylo_hn" class="contact-btn telegram-btn" target="_blank">
-                <i class="fab fa-telegram-plane icon"></i>
-                Telegram
-            </a>
+      </div>
+    </header>
 
-            <button class="contact-btn notification-btn" id="openNotificationModal">
-                <i class="fas fa-bell icon"></i>
-                <span data-translate="notification">Відправити сповіщення</span>
-            </button>
-        </div>
-        
-        <div class="message-form">
-            <h3 data-translate="messageTitle">Залишити повідомлення</h3>
-            <form id="messageForm">
-                <textarea 
-                    id="messageText" 
-                    data-translate-placeholder="messagePlaceholder"
-                    placeholder="Напишіть ваше повідомлення..." 
-                    rows="3"
-                    maxlength="500"
-                ></textarea>
-                <input 
-                    type="text" 
-                    id="senderName" 
-                    data-translate-placeholder="namePlaceholder"
-                    placeholder="Ваше ім'я (необов'язково)"
-                    maxlength="50"
-                >
-                <button type="submit" class="send-btn">
-                    <span data-translate="send">Відправити</span>
-                </button>
-            </form>
-        </div>
-    </div>
+    <nav class="actions" aria-label="Contact">
+      <a class="btn btn--call" href="tel:+380672923375" data-action="call">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1L6.6 10.8z"/></svg>
+        <span><span data-l="uk">Подзвонити</span><span data-l="en">Call</span></span>
+      </a>
+      <a class="btn btn--tg" href="https://t.me/kyrylo_hn" target="_blank" rel="noopener" data-action="telegram">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.5 4.3 18.4 19.2c-.2 1-.8 1.3-1.7.8l-4.6-3.4-2.2 2.1c-.25.25-.45.45-.9.45l.3-4.7 8.6-7.8c.4-.3-.1-.5-.6-.2L6.7 13.1 2.2 11.7c-1-.3-1-1 .2-1.5l17.7-6.8c.8-.3 1.6.2 1.4 1z"/></svg>
+        <span><span data-l="uk">Написати в Telegram</span><span data-l="en">Message on Telegram</span></span>
+      </a>
+    </nav>
 
-    <div id="notificationModal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn">&times;</span>
-            <h3 data-translate="notificationTitle">Оберіть сповіщення</h3>
-            <div class="notification-options">
-                <button class="option-btn" data-type="blocked" data-translate="blocked">Заважає проїзду</button>
-                <button class="option-btn" data-type="accident" data-translate="accident">ДТП</button>
-                <button class="option-btn" data-type="alarm" data-translate="alarm">Звучить сигналізація</button>
-                <button class="option-btn" data-type="light" data-translate="light">Горить світло</button>
-                <button class="option-btn" data-type="window" data-translate="window">Відкрите вікно</button>
-                <button class="option-btn" data-type="evacuation" data-translate="evacuation">Евакуація</button>
-                <button class="option-btn" data-type="flatTire" data-translate="flatTire">Спущене колесо</button>
-                <button class="option-btn" data-type="other" data-translate="other">Інше</button>
-            </div>
-            <div class="modal-photo-upload">
-                <h4 data-translate="photoUploadTitle">Прикріпити фото (необов'язково)</h4>
-                <input type="file" id="photoInput" accept="image/*" class="photo-input">
-                <label for="photoInput" class="custom-file-upload">
-                    <i class="fas fa-camera"></i> <span data-translate="choosePhoto">Обрати фото</span>
-                </label>
-            </div>
-        </div>
-    </div>
+    <section class="report" aria-labelledby="report-title">
+      <h2 id="report-title" class="report__title">
+        <span data-l="uk">Або повідомте, що сталося</span>
+        <span data-l="en">Or tell me what happened</span>
+      </h2>
+      <p class="report__hint">
+        <span data-l="uk">Повідомлення одразу прийде мені в Telegram. Ваш номер мені не потрібен.</span>
+        <span data-l="en">It goes straight to my Telegram. You don't need to share your number.</span>
+      </p>
 
-    <script src="./js/script.js"></script>
+      <form id="report" novalidate>
+        <fieldset class="issues">
+          <legend class="sr-only"><span data-l="uk">Що сталося</span><span data-l="en">What happened</span></legend>
+          <label><input type="radio" name="issue" value="blocked" /><span><span data-l="uk">Заважає проїзду</span><span data-l="en">Blocking the way</span></span></label>
+          <label><input type="radio" name="issue" value="accident" /><span><span data-l="uk">ДТП</span><span data-l="en">Accident</span></span></label>
+          <label><input type="radio" name="issue" value="evacuation" /><span><span data-l="uk">Евакуація</span><span data-l="en">Being towed</span></span></label>
+          <label><input type="radio" name="issue" value="alarm" /><span><span data-l="uk">Сигналізація</span><span data-l="en">Alarm going off</span></span></label>
+          <label><input type="radio" name="issue" value="lights" /><span><span data-l="uk">Горить світло</span><span data-l="en">Lights left on</span></span></label>
+          <label><input type="radio" name="issue" value="window" /><span><span data-l="uk">Відкрите вікно</span><span data-l="en">Window open</span></span></label>
+          <label><input type="radio" name="issue" value="tire" /><span><span data-l="uk">Спущене колесо</span><span data-l="en">Flat tyre</span></span></label>
+          <label><input type="radio" name="issue" value="other" /><span><span data-l="uk">Інше</span><span data-l="en">Something else</span></span></label>
+        </fieldset>
+
+        <label class="field">
+          <span class="field__label"><span data-l="uk">Коментар</span><span data-l="en">Comment</span></span>
+          <textarea name="text" rows="3" maxlength="1000"></textarea>
+        </label>
+
+        <label class="field">
+          <span class="field__label"><span data-l="uk">Ваше ім'я, якщо хочете</span><span data-l="en">Your name, if you like</span></span>
+          <input name="name" type="text" maxlength="60" autocomplete="given-name" />
+        </label>
+
+        <div class="extras">
+          <label class="extra">
+            <input type="file" name="photo" accept="image/*" id="photo" />
+            <span class="extra__box">
+              <span id="photo-label"><span data-l="uk">Додати фото</span><span data-l="en">Add a photo</span></span>
+            </span>
+          </label>
+          <label class="extra">
+            <input type="checkbox" id="geo" />
+            <span class="extra__box">
+              <span data-l="uk">Додати моє місцезнаходження</span><span data-l="en">Share my location</span>
+            </span>
+          </label>
+        </div>
+
+        <input class="trap" name="website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true" />
+
+        <p class="status" id="status" role="status" aria-live="polite"></p>
+
+        <button type="submit" class="btn btn--send" id="send">
+          <span data-l="uk">Надіслати власнику</span><span data-l="en">Send to the owner</span>
+        </button>
+      </form>
+    </section>
+  </main>
+
+  <script src="./js/script.js"></script>
 </body>
 </html>

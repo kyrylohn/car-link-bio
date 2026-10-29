@@ -1,475 +1,380 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+/* ==========================================================================
+   Car contact page, read on a phone next to the car, often outdoors.
+   Road-sign vernacular: sign blue panel with a white inset border,
+   asphalt text, road-marking yellow for the selected issue.
+   ========================================================================== */
+
+:root {
+  --sign: #1d5ba8;
+  --sign-ink: #ffffff;
+  --page: #ffffff;
+  --ink: #1b1f24;
+  --muted: #59626c;
+  --line: #cfd5db;
+  --field: #f3f5f7;
+  --marking: #f2c230;
+  --marking-ink: #1b1f24;
+  --ok: #1f7a43;
+  --err: #b3261e;
+
+  --display: "Fira Sans Condensed", "Arial Narrow", sans-serif;
+  --text: "Fira Sans", system-ui, sans-serif;
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --sign: #1d5ba8;
+    --page: #121519;
+    --ink: #eef1f4;
+    --muted: #a3acb6;
+    --line: #2d343c;
+    --field: #1b2026;
+    --ok: #6fd39a;
+    --err: #ff9d95;
+    color-scheme: dark;
+  }
+}
+
+:root[lang="uk"] [data-l="en"],
+:root[lang="en"] [data-l="uk"] {
+  display: none !important;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
+  margin: 0;
+  background: var(--page);
+  color: var(--ink);
+  font: 400 1.0625rem/1.5 var(--text);
+  -webkit-text-size-adjust: 100%;
 }
 
-.container {
-    background: white;
-    border-radius: 20px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-    padding: 40px 30px;
-    max-width: 400px;
-    width: 100%;
-    text-align: center;
-    animation: slideUp 0.6s ease-out;
+.page {
+  max-width: 30rem;
+  margin: 0 auto;
+  padding: max(1rem, env(safe-area-inset-top)) 1rem max(2rem, env(safe-area-inset-bottom));
 }
 
-@keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
-.car-icon {
-    width: 80px;
-    height: 80px;
-    margin: 0 auto 20px;
-    border-radius: 50%;
-    background: #f0f0f0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    border: 3px solid #e0e0e0;
-    animation: bounce 2s infinite;
+:focus-visible {
+  outline: 3px solid var(--marking);
+  outline-offset: 2px;
 }
 
-.car-icon img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 50%;
+/* --- Language ---------------------------------------------------------------- */
+
+.lang {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.75rem;
 }
 
-.car-icon-placeholder {
-    font-size: 40px;
-    color: #ccc;
+.lang button {
+  font: 600 0.875rem/1 var(--text);
+  min-width: 3rem;
+  padding: 0.6rem 0.75rem;
+  color: var(--muted);
+  background: none;
+  border: 1px solid var(--line);
+  cursor: pointer;
 }
 
-.language-switcher {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    background: rgba(255,255,255,0.9);
-    border-radius: 20px;
-    padding: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    display: flex;
-    gap: 5px;
+.lang button + button {
+  border-left: 0;
 }
 
-.lang-btn {
-    background: transparent;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 15px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    color: #666;
+.lang button[aria-pressed="true"] {
+  color: var(--ink);
+  background: var(--field);
 }
 
-.lang-btn.active {
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    color: white;
+/* --- Road sign ----------------------------------------------------------------- */
+
+.sign {
+  background: var(--sign);
+  color: var(--sign-ink);
+  border-radius: 14px;
+  padding: 7px;
 }
 
-.lang-btn:hover:not(.active) {
-    background: rgba(102, 126, 234, 0.1);
-    color: #667eea;
+.sign__plate {
+  border: 3px solid var(--sign-ink);
+  border-radius: 9px;
+  padding: 1.1rem 1.25rem 1.35rem;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 1rem;
+  align-items: center;
 }
 
-@keyframes bounce {
-    0%, 20%, 50%, 80%, 100% {
-        transform: translateY(0);
-    }
-    40% {
-        transform: translateY(-10px);
-    }
-    60% {
-        transform: translateY(-5px);
-    }
+.sign__p {
+  grid-row: span 2;
+  font: 700 clamp(5rem, 26vw, 7.5rem) / 0.8 var(--display);
+  align-self: start;
 }
 
-h1 {
-    color: #333;
-    margin-bottom: 10px;
-    font-size: 24px;
-    font-weight: 600;
+.sign__title {
+  font: 700 clamp(1.75rem, 8vw, 2.25rem) / 1.02 var(--display);
+  margin: 0;
 }
 
-.subtitle {
-    color: #666;
-    margin-bottom: 30px;
-    font-size: 16px;
-    line-height: 1.5;
+.sign__text {
+  margin: 0.5rem 0 0;
+  font-size: 1.0625rem;
+  line-height: 1.35;
 }
 
-.contact-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+/* --- Buttons ------------------------------------------------------------------- */
+
+.actions {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
 }
 
-.contact-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    padding: 15px 20px;
-    border: none;
-    border-radius: 12px;
-    font-size: 16px;
-    font-weight: 500;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  min-height: 3.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  font: 600 1.25rem/1.1 var(--text);
+  text-decoration: none;
+  cursor: pointer;
+  border: 2px solid transparent;
 }
 
-.contact-btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-    transition: left 0.5s;
+.btn svg {
+  width: 1.4rem;
+  height: 1.4rem;
+  fill: currentColor;
+  flex: none;
 }
 
-.contact-btn:hover::before {
-    left: 100%;
+.btn--call {
+  background: var(--sign);
+  color: var(--sign-ink);
+  min-height: 4.25rem;
+  font-size: 1.4rem;
 }
 
-.phone-btn {
-    background: linear-gradient(135deg, #4CAF50, #45a049);
-    color: white;
+.btn--tg {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--ink);
 }
 
-.phone-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(76, 175, 80, 0.3);
+.btn:active {
+  transform: translateY(1px);
 }
 
-.telegram-btn {
-    background: linear-gradient(135deg, #0088cc, #006699);
-    color: white;
+/* --- Report form --------------------------------------------------------------- */
+
+.report {
+  margin-top: 2.25rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--line);
 }
 
-.telegram-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0, 136, 204, 0.3);
+.report__title {
+  font: 700 1.5rem/1.15 var(--display);
+  margin: 0;
 }
 
-/* New styles for Notification button */
-.notification-btn {
-    background: linear-gradient(135deg, #FFD700, #FFA500);
-    color: white;
+.report__hint {
+  margin: 0.35rem 0 1.1rem;
+  color: var(--muted);
+  font-size: 0.9375rem;
 }
 
-.notification-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(255, 215, 0, 0.3);
+#report {
+  display: grid;
+  gap: 1rem;
 }
 
-.drivetop-btn {
-    background: linear-gradient(135deg, #FF6B35, #F7931E);
-    color: white;
+.issues {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
 }
 
-.drivetop-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(255, 107, 53, 0.3);
+.issues label,
+.extra {
+  position: relative;
+  display: block;
+  cursor: pointer;
 }
 
-.icon {
-    font-size: 20px;
+.issues input,
+.extra input {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+  margin: 0;
+  cursor: pointer;
 }
 
-.message-form {
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 1px solid #eee;
-    text-align: left;
+.issues label > span {
+  display: flex;
+  align-items: center;
+  min-height: 3.25rem;
+  padding: 0.5rem 0.8rem;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  background: var(--field);
+  font-weight: 500;
+  line-height: 1.2;
 }
 
-.message-form h3 {
-    color: #333;
-    margin-bottom: 15px;
-    font-size: 18px;
-    text-align: center;
+.issues input:checked + span {
+  background: var(--marking);
+  border-color: var(--marking);
+  color: var(--marking-ink);
+  font-weight: 600;
 }
 
-.message-form textarea,
-.message-form input {
-    width: 100%;
-    padding: 12px 15px;
-    border: 2px solid #e0e0e0;
-    border-radius: 10px;
-    font-size: 14px;
-    margin-bottom: 15px;
-    font-family: inherit;
-    transition: all 0.3s ease;
-    resize: vertical;
+.issues input:focus-visible + span,
+.extra input:focus-visible + .extra__box {
+  outline: 3px solid var(--marking);
+  outline-offset: 2px;
 }
 
-.message-form textarea:focus,
-.message-form input:focus {
-    outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+.field {
+  display: grid;
+  gap: 0.35rem;
 }
 
-.send-btn {
-    width: 100%;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    color: white;
-    border: none;
-    padding: 15px;
-    border-radius: 10px;
-    font-size: 16px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
+.field__label {
+  font-weight: 500;
+  font-size: 0.9375rem;
 }
 
-.send-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+.field textarea,
+.field input {
+  font: inherit;
+  color: var(--ink);
+  background: var(--field);
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  padding: 0.7rem 0.8rem;
+  width: 100%;
 }
 
-.send-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+.field textarea {
+  resize: vertical;
+}
+
+.field textarea:focus,
+.field input:focus {
+  border-color: var(--sign);
+  outline: none;
+}
+
+.extras {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.extra__box {
+  display: flex;
+  align-items: center;
+  min-height: 3.25rem;
+  padding: 0.5rem 0.8rem 0.5rem 2.4rem;
+  border: 2px dashed var(--line);
+  border-radius: 8px;
+  font-size: 0.9375rem;
+  line-height: 1.2;
+  position: relative;
+}
+
+/* Checkbox-like marker shows whether the photo or location is attached */
+.extra__box::before {
+  content: "";
+  position: absolute;
+  left: 0.8rem;
+  top: 50%;
+  width: 1.1rem;
+  height: 1.1rem;
+  margin-top: -0.55rem;
+  border: 2px solid var(--muted);
+  border-radius: 4px;
+}
+
+.extra input:checked + .extra__box,
+.extra.is-set .extra__box {
+  border-style: solid;
+  border-color: var(--sign);
+}
+
+.extra input:checked + .extra__box::before,
+.extra.is-set .extra__box::before {
+  background: var(--sign);
+  border-color: var(--sign);
+  box-shadow: inset 0 0 0 2px var(--page);
+}
+
+.trap {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+}
+
+.status {
+  margin: 0;
+  min-height: 1.5em;
+  font-weight: 500;
+}
+
+.status[data-state="ok"] {
+  color: var(--ok);
+}
+
+.status[data-state="error"] {
+  color: var(--err);
+}
+
+.btn--send {
+  background: var(--ink);
+  color: var(--page);
+  width: 100%;
+}
+
+.btn--send:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+@media (max-width: 22rem) {
+  .issues,
+  .extras {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn:active {
     transform: none;
-}
-
-.status-message {
-    padding: 10px 15px;
-    border-radius: 8px;
-    margin-bottom: 15px;
-    text-align: center;
-    font-weight: 500;
-    display: none;
-}
-
-.status-success {
-    background: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-}
-
-.status-error {
-    background: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
-}
-
-.footer {
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 1px solid #eee;
-    color: #888;
-    font-size: 14px;
-}
-
-.status-indicator {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    background: #4CAF50;
-    border-radius: 50%;
-    margin-right: 8px;
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0% {
-        box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
-    }
-    70% {
-        box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
-    }
-    100% {
-        box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
-    }
-}
-
-@keyframes ripple {
-    to {
-        transform: scale(2);
-        opacity: 0;
-    }
-}
-
-/* Modal styles */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 100;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.4);
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
-    justify-content: center;
-    align-items: center;
-    animation: fadeIn 0.3s;
-}
-
-.modal-content {
-    background: white;
-    padding: 30px;
-    border-radius: 20px;
-    position: relative;
-    max-width: 450px;
-    width: 90%;
-    text-align: center;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    animation: slideIn 0.4s ease-out;
-}
-
-.close-btn {
-    color: #aaa;
-    position: absolute;
-    top: 15px;
-    right: 25px;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: color 0.3s;
-}
-
-.close-btn:hover,
-.close-btn:focus {
-    color: #333;
-}
-
-.modal-content h3 {
-    color: #333;
-    margin-bottom: 20px;
-    font-size: 20px;
-}
-
-.notification-options {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    margin-bottom: 20px;
-}
-
-.option-btn {
-    background-color: #f0f2f5;
-    color: #333;
-    border: 2px solid #e0e0e0;
-    border-radius: 10px;
-    padding: 15px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-align: center;
-}
-
-.option-btn:hover {
-    background-color: #e6e8eb;
-    border-color: #667eea;
-}
-
-.option-btn.selected {
-    background-color: #667eea;
-    color: white;
-    border-color: #667eea;
-    transform: scale(1.03);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
-}
-
-.modal-photo-upload {
-    margin-top: 20px;
-    border-top: 1px solid #eee;
-    padding-top: 20px;
-}
-
-.modal-photo-upload h4 {
-    color: #666;
-    margin-bottom: 15px;
-    font-size: 16px;
-}
-
-.photo-input {
-    display: none;
-}
-
-.custom-file-upload {
-    display: inline-block;
-    padding: 10px 20px;
-    cursor: pointer;
-    background: linear-gradient(135deg, #4CAF50, #45a049);
-    color: white;
-    border-radius: 10px;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
-
-.custom-file-upload:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
-}
-
-.custom-file-upload i {
-    margin-right: 8px;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-@keyframes slideIn {
-    from { transform: translateY(-50px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-
-@media (max-width: 480px) {
-    .container {
-        padding: 30px 20px;
-    }
-    
-    h1 {
-        font-size: 22px;
-    }
-    
-    .contact-btn {
-        padding: 14px 18px;
-        font-size: 15px;
-    }
-    
-    .notification-options {
-        grid-template-columns: 1fr;
-    }
+  }
 }

@@ -1,0 +1,9 @@
+name = "car-notify"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+
+[vars]
+CHAT_ID = "-4879308527"
+ALLOWED_ORIGINS = "https://kyrylohn.github.io"
+
+# BOT_TOKEN is a secret: npx wrangler secret put BOT_TOKEN

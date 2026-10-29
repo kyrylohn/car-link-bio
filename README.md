@@ -1,65 +1,38 @@
-# 🚗 Contact Car Owner
+# Contact the car owner
 
-A simple, user-friendly webpage designed to be displayed on a car's dashboard or windshield as a QR code. It allows other drivers to quickly contact the car owner via Telegram or a phone call, or to leave a message.
+A page for a QR sticker on the car: someone next to the car can call the owner,
+open Telegram, or send a short report (what happened, a comment, a photo and,
+optionally, their location). Live: https://kyrylohn.github.io/car-link-bio/
 
-## ✨ Features
+## How it works
 
-- **Multi-language Support:** The page is available in both Ukrainian (🇺🇦) and English (🇺🇸), with the ability to switch between them.
-- **Direct Contact:** Provides a direct link to a phone call and a Telegram profile.
-- **Message Form:** Allows others to send a text message directly to a specified Telegram chat without needing to know the car owner's phone number.
-- **Responsive Design:** Looks great on both desktop and mobile devices.
-- **Ripple Effects:** Interactive buttons with a smooth ripple effect for a modern user experience.
+- `index.html`, `css/style.css`, `js/script.js`: static page, Ukrainian and English,
+  light and dark themes. No build step.
+- `worker/`: Cloudflare Worker `car-notify` that forwards reports and visit
+  notifications to a Telegram group. The bot token lives only in the Worker as a secret.
 
-## 🛠️ How to Use
+The Worker exposes:
 
-### 1. Set Up Telegram Bot
+- `POST /report`: multipart form with `issue`, `text`, `name`, `lang`, optional `photo`
+  and `lat`/`lon`/`acc`; sends a message or photo, plus a map pin if a location was shared
+- `POST /visit`: sends a "page opened" message (location by IP, network, device), returns a signed `ref`
+- `POST /update`: edits that message with time on page and actions (call, Telegram, report)
 
-To use the message sending feature, you'll need to create a Telegram bot and get a chat ID.
+## Deploy the Worker
 
-1.  **Create a Bot:** Talk to the **BotFather** on Telegram and follow the instructions to create a new bot. You'll receive a `TELEGRAM_BOT_TOKEN`.
-2.  **Get Your Chat ID:** Send a message to your new bot. Then, go to `https://api.telegram.org/bot[YOUR_BOT_TOKEN]/getUpdates` in your browser. Look for the `"chat"` object and find the `"id"` value. This is your `TELEGRAM_CHAT_ID`. Note: If you want to send messages to a group, the ID will be a negative number.
-
-### 2. Configure the Code
-
-Open the `script.js` file and replace the placeholder values with your own:
-
-```javascript
-const TELEGRAM_BOT_TOKEN = 'YOUR_BOT_TOKEN'; // Replace with your bot's token
-const TELEGRAM_CHAT_ID = 'YOUR_CHAT_ID'; // Replace with your chat ID
-````
-
-You can also customize the contact links in the `index.html` file:
-
-```html
-<a href="tel:+380672923375" class="contact-btn phone-btn">
-    ...
-</a>
-
-<a href="[https://t.me/kyrylo_hn](https://t.me/kyrylo_hn)" class="contact-btn telegram-btn" target="_blank">
-    ...
-</a>
+```bash
+cd worker
+npx wrangler deploy
+npx wrangler secret put BOT_TOKEN   # Telegram bot token, never commit it
 ```
 
-### 3\. Change Car Avatar (Optional)
+Set `CHAT_ID` in `wrangler.toml` to the Telegram group ID.
 
-To change the car image, simply replace the `IMG_20250909.jpg` file in the `img` folder with your own image, or uncomment the `changeAvatar` function in `script.js` and provide a new URL:
+## QR code
 
-```javascript
-// Uncomment and use this function to change the avatar dynamically
-// changeAvatar('[https://your-domain.com/your-avatar.png](https://your-domain.com/your-avatar.png)');
-```
+Point the QR code at `https://kyrylohn.github.io/car-link-bio/?qr=windshield`.
+The `qr` value shows up in the visit notification, so different stickers can be told apart.
 
-## 🚀 Deployment
+## License
 
-1.  **Upload Files:** Place all the project files (`index.html`, `style.css`, `script.js`, and the `img` folder) on a web server.
-2.  **Generate a QR Code:** Use an online QR code generator to create a QR code that links to your deployed webpage's URL (e.g., `https://your-domain.com/index.html`).
-3.  **Print and Display:** Print the QR code and place it on your car's windshield or dashboard for easy access.
-
-Now, anyone can simply scan the code and get in touch with you\!
-
-## 📜 License
-
-This project is licensed under the MIT License.
-
-```
-```
+MIT, see [LICENSE](LICENSE).
